@@ -35,5 +35,17 @@ def add_task_db(user_id: int, task_text: str):
         logging.error(f"malumot qushilmadi {user_id} {e}")
         return None
     
-    
-    
+
+
+def get_task(user_id: int):
+    try:
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id,task_text,is_done FROM tasks WHERE user_id = ?", (user_id,)
+            )
+            tasks = cursor.fetchall()
+            return [{'id': row[0], 'text': row[1], 'is_done': bool(row[2])} for row in tasks]
+    except sqlite3.Error as e:
+        logging.error(f"malumot olishda xatolik {user_id} {e}")
+        return []
