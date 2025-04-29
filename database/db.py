@@ -49,3 +49,33 @@ def get_task(user_id: int):
     except sqlite3.Error as e:
         logging.error(f"malumot olishda xatolik {user_id} {e}")
         return []
+    
+    
+def update_task(task_id: int, is_done: bool, user_id: int):
+    try:
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            cursor =  conn.cursor()
+            cursor.execute("UPDATE tasks SET is_done = ? WHERE id = ? AND user_id = ? ", (int(is_done),task_id,user_id))
+            conn.commit()
+            logging.info("Malumotlar muffaqiyatli yangilandi ")
+            return cursor.rowcount > 0
+    except sqlite3.Error as e:
+        logging.error(f"malumot yangilashda xatolik {user_id} {e}")
+        return False
+    
+
+def get_task_id(task_id: int, user_id: int):
+    
+    try:
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("Select id,task_text,is_done from tasks where id = ? and user_id = ?", (task_id,user_id))
+            task_row = cursor.fetchone()
+            if task_row:
+                return {'id': task_row[0], 'text': task_row[1], 'is_done': bool(task_row[2])}
+            else:
+                return None
+    except sqlite3.Error as e:
+        logging.error(f"Xatolik {user_id} {e}")
+        return None    
+    
